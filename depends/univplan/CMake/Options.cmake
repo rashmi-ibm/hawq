@@ -30,10 +30,10 @@ ENDIF()
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fno-omit-frame-pointer -fno-strict-aliasing")
 
 IF(ENABLE_AVX STREQUAL ON)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -mno-avx2")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DAVX_OPT")
+#    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -mno-avx2")
+ #   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DAVX_OPT")
 ELSE()
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-avx -mno-avx2")
+  #  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-avx -mno-avx2")
 ENDIF()
 
 #c++11 is needed to provide thread saft singleton implementation. 

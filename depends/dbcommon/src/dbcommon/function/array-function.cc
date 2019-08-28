@@ -19,7 +19,7 @@
 
 #include "dbcommon/function/array-function.h"
 
-#include <x86intrin.h>
+#include <ace/os_include/os_intrin.h>
 
 #include <cmath>
 #include <memory>
