@@ -1,95 +1,74 @@
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 language: c
-
+arch: ppc64le
 os:
-  - osx
-
-osx_image: xcode8.3
+  - linux
 
 compiler:
-  - clang
+  - gcc 
+
+addons:
+  apt:
+    update: true
 
 before_install:
-  - brew --version
-  - "brew update 2>&1 > /tmp/brew-update.txt || (cat /tmp/brew-update.txt && false)"
-  - brew list --versions
-
-install:
-  - brew reinstall
-      Gsasl
-      boost
-      bison
-      ccache
-      cpanm
-      libevent
-      maven
-      openssl
-      python
-      snappy
-      apr
-      apr-util
-  - brew reinstall
-      protobuf
-      protobuf-c
-      thrift@0.9
-      glog
-      lz4
-      libiconv
-      jsoncpp
-      hadoop
-  - brew outdated libyaml || brew upgrade libyaml
-  - git clone https://github.com/json-c/json-c.git
-  - pushd json-c
-  - git reset --hard json-c-0.12.1-20160607
-  - sh autogen.sh
-  - ./configure
-  - make
-  - make install
-  - popd
-  - rm -rf ./json-c
-  - brew link --force thrift@0.9
-  - ln -s /usr/local/opt/apr/libexec/lib/libapr-1.dylib /usr/local/lib/
-  - ln -s /usr/local/opt/apr/libexec/bin/apr-1-config /usr/local/bin/apr-1-config
-  - ln -s /usr/local/opt/openssl/lib/libcrypto.dylib /usr/local/lib/
-  - ln -s /usr/local/opt/openssl/lib/libssl.dylib /usr/local/lib/
-  - ln -s /usr/local/opt/openssl/bin/openssl /usr/local/bin/openssl
-  - ln -s /usr/local/opt/libiconv/lib/libiconv.dylib /usr/local/lib/
-  - ln -s /usr/local/opt/libiconv/lib/libcharset.dylib /usr/local/lib/
-  - ln -s /usr/local/opt/libiconv/bin/iconv /usr/local/bin/iconv
-  - cp /usr/local/opt/libiconv/include/* /usr/local/include/
-  - brew outdated maven   || brew upgrade maven
-  - brew install iproute2mac
-  - brew list --versions
-  - sudo curl https://bootstrap.pypa.io/get-pip.py |sudo python
-  - sudo pip install pycrypto
-  - sudo pip install cogapp
-  - sudo cpanm install JSON
+  - sudo apt-get install -y git tar make gcc g++ wget cmake libboost-all-dev bison flex openjdk-8-jdk maven gperf libsnappy-dev libevent-dev automake libtool libjson-perl libreadline-dev
+  - sudo apt-get install -y libapr1 libapr1-dev unzip curl libcurl4-openssl-dev libbz2-dev pkg-config libssl-dev 
+  - sudo apt-get install -y libjson-c-dev libxml2-dev python-dev python-setuptools python-pip libghc-gsasl-dev
+  - sudo apt-get install -y libgtest-dev gsasl build-essential libprotobuf-dev libkrb5-dev protobuf-compiler
+  - sudo pip uninstall pyyaml
+  - sudo apt-get install libyaml-dev libpython2.7-dev
+  - sudo pip install pyyaml
+  - export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-ppc64el
+  - cd /
+  - sudo wget http://archive.apache.org/dist/thrift/0.10.0/thrift-0.10.0.tar.gz 
+  - sudo tar -xvzf thrift-0.10.0.tar.gz
+  - cd thrift-0.10.0
+  - sed -i '98s/1.5/1.6/g' lib/java/build.xml
+  - sudo ./configure 
+  - sudo make
+  - sudo make install
+  - cd ..
+  
+  - cd /
+  - sudo wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz
+  - sudo tar -xvzf protobuf-2.5.0.tar.gz 
+  
+  - cd /
+  - sudo git clone https://github.com/json-c/json-c.git
+  - cd json-c
+  - sudo git clean -fd
+  - sudo git reset --hard json-c-0.12.1-20160607
+  - sudo ./autogen.sh
+  - sudo ./configure --build=ppc64le-pc-linux
+  - sudo make
+  - sudo make install
+  - cd ..
+  
+  
+  - cd protobuf-2.5.0
+  - sed -i '22s/http:\/\/googletest.googlecode.com\/files\/gtest-1.5.0.tar.bz2/https:\/\/src.fedoraproject.org\/repo\/pkgs\/gtest\/gtest-1.5.0.tar.bz2\/8b2c3c3f26cb53e64a3109d03a97200a\/gtest-1.5.0.tar.bz2/' autogen.sh
+  - cd src/google/protobuf/stubs/
+  - rm atomicops.h platform_macros.h 
+  - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/atomicops.h 
+  - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/atomicops_internals_power.h  
+  - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/platform_macros.h 
+  - cd ../../../../
+  - sudo ./autogen.sh
+  - sudo ./configure
+  - sudo make 
   
 
-before_script:
-  - mvn apache-rat:check
-  - export DEPENDENCY_INSTALL_PREFIX=/usr/local/opt/openssl
-  - cd $TRAVIS_BUILD_DIR
-  - ./configure
-
-script:
-  - sudo install -o $USER -d /usr/local/hawq
-  - make -j$(sysctl -n hw.ncpu)
-  - make feature-test
-  - make feature-test-clean
+  - cd /
+  - sudo git clone https://github.com/apache/hawq
+  - cd /hawq/depends/libhdfs3/build
+  - rm -rf *
+  - ../bootstrap
+  - make
+  - make install 
+  - cd /hawq
+  - sudo ./configure --build=ppc64le-pc-linux
+  - sudo make
+  - sudo make install
 
 branches:
   except:
