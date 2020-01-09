@@ -22,6 +22,9 @@ before_install:
   - cd /
   - sudo wget http://archive.apache.org/dist/thrift/0.10.0/thrift-0.10.0.tar.gz 
   - sudo tar -xvzf thrift-0.10.0.tar.gz
+  - cd /
+  - sudo wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz
+  - sudo tar -xvzf protobuf-2.5.0.tar.gz 
   - cd thrift-0.10.0
   - sed -i '98s/1.5/1.6/g' lib/java/build.xml
   - sudo ./configure 
@@ -29,9 +32,7 @@ before_install:
   - sudo make install
   - cd ..
   
-  - cd /
-  - sudo wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz
-  - sudo tar -xvzf protobuf-2.5.0.tar.gz 
+
   
   - cd /
   - sudo git clone https://github.com/json-c/json-c.git
