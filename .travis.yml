@@ -47,9 +47,13 @@ before_install:
   
   
   - cd protobuf-2.5.0
-  - sed -i '22s/http:\/\/googletest.googlecode.com\/files\/gtest-1.5.0.tar.bz2/https:\/\/src.fedoraproject.org\/repo\/pkgs\/gtest\/gtest-1.5.0.tar.bz2\/8b2c3c3f26cb53e64a3109d03a97200a\/gtest-1.5.0.tar.bz2/' autogen.sh
-  - cd src/google/protobuf/stubs/
-  - rm atomicops.h platform_macros.h 
+  - ls -l
+  - pwd
+  - sudo sed -i '22s/http:\/\/googletest.googlecode.com\/files\/gtest-1.5.0.tar.bz2/https:\/\/src.fedoraproject.org\/repo\/pkgs\/gtest\/gtest-1.5.0.tar.bz2\/8b2c3c3f26cb53e64a3109d03a97200a\/gtest-1.5.0.tar.bz2/' ./autogen.sh 
+  - ls
+  - cd src/google/protobuf/stubs/
+  - ls
+  - sudo rm atomicops.h platform_macros.h
   - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/atomicops.h 
   - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/atomicops_internals_power.h  
   - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/platform_macros.h 
@@ -57,7 +61,41 @@ before_install:
   - sudo ./autogen.sh
   - sudo ./configure
   - sudo make 
+  - export PATH=$PATH:/protobuf-2.5.0
   
+  - cd /
+  - sudo wget https://www-eu.apache.org/dist/hadoop/common/hadoop-2.9.2/hadoop-2.9.2-src.tar.gz 
+  - sudo tar -xvzf hadoop-2.9.2-src.tar.gz
+  - cd hadoop-2.9.2-src
+  - mvn package -Pdist,native -DskipTests=true -Dtar
+  
+  - cd /
+  - sudo wget https://github.com/protocolbuffers/protobuf/releases/download/v3.11.2/protobuf-all-3.11.2.tar.gz
+  - sudo tar -xvzf protobuf-all-3.11.2.tar.gz
+  - cd protobuf-3.11.2
+  - sudo ./autogen.sh
+  - sudo ./configure
+  - sudo make
+  - sudo make install
+  - mvn install:install-file -DgroupId=com.google.protobuf -DartifactId=protoc -Dversion=3.11.2 -Dclassifier=linux-ppcle_64 -Dpackaging=exe -Dfile=./src/protoc
+  - cd /
+
+  - sudo wget http://ftp.gnu.org/gnu/bison/bison-2.3.tar.gz
+  - sudo tar -xvzf bison-2.3.tar.gz
+  - cd bison-2.3
+  - sudo ./configure --build=ppc64le-pc-linux
+  - sudo make
+  - sudo make install
+
+ 
+  - cd /
+  - sudo apt-get install -y gperftools-libs
+  - sudo wget https://ftp.gnu.org/gnu/libiconv/libiconv-1.16.tar.gz
+  - sudo tar -xf libiconv-1.16.tar.gz
+  - cd libiconv-1.16
+  - sudo ./configure
+  - sudo make
+  - sudo make install 
 
   - cd /
   - sudo git clone https://github.com/apache/hawq
