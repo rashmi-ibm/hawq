@@ -13,26 +13,45 @@ addons:
 before_install:
   - sudo apt-get install -y git tar make gcc g++ wget cmake libboost-all-dev bison flex openjdk-8-jdk maven gperf libsnappy-dev libevent-dev automake libtool libjson-perl libreadline-dev
   - sudo apt-get install -y libapr1 libapr1-dev unzip curl libcurl4-openssl-dev libbz2-dev pkg-config libssl-dev 
-  - sudo apt-get install -y libjson-c-dev libxml2-dev python-dev python-setuptools python-pip libghc-gsasl-dev
-  - sudo apt-get install -y libgtest-dev gsasl build-essential libprotobuf-dev libkrb5-dev protobuf-compiler
+  - sudo apt-get install -y libjson-c-dev libxml2-dev python-dev python-setuptools python-pip libghc-gsasl-dev protobuf-compiler
+  - sudo apt-get install -y libgtest-dev gsasl build-essential libkrb5-dev 
   - sudo pip uninstall pyyaml
   - sudo apt-get install libyaml-dev libpython2.7-dev
   - sudo pip install pyyaml
   - export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-ppc64el
+  
+  - sudo wget https://archive.apache.org/dist/maven/maven-3/3.6.2/binaries/apache-maven-3.6.2-bin.tar.gz
+  - sudo tar -xvzf apache-maven-3.6.2-bin.tar.gz
+  - sudo ln -s apache-maven-3.6.2 /maven
+  - export M2_HOME=/maven
+  - export M3_HOME=/maven
+  - export PATH=${M2_HOME}/bin:${PATH}
+  
   - cd /
-  - sudo wget http://archive.apache.org/dist/thrift/0.10.0/thrift-0.10.0.tar.gz 
+  - sudo wget http://ftp.gnu.org/gnu/bison/bison-2.7.tar.gz
+  - sudo tar -xvzf bison-2.7.tar.gz
+  - cd bison-2.7
+  - sudo ./configure --build=ppc64le-pc-linux
+  - sudo make
+  - sudo make install
+  
+  - cd /
+  - sudo wget https://archive.apache.org/dist/thrift/0.10.0/thrift-0.10.0.tar.gz
   - sudo tar -xvzf thrift-0.10.0.tar.gz
   - cd /
-  - sudo wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz
-  - sudo tar -xvzf protobuf-2.5.0.tar.gz --no-same-owner
+  - sudo wget https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.tar.gz
+  - sudo tar -xvzf protobuf-2.5.0.tar.gz --no-same-owner
   - cd thrift-0.10.0
   - sed -i '98s/1.5/1.6/g' lib/java/build.xml
-  - sudo ./configure 
+  - sed -i '13s/http:\/\/repo1.maven.org\/maven2/https:\/\/repo1.maven.org\/maven2/' lib/java/build.properties
+  - sed -i '8s/http:\/\/repo1.maven.org\/maven2/https:\/\/repo1.maven.org\/maven2/' lib/json/test/build.properties
+  - sed -i '320s/http:\/\/thrift.apache.org/https:\/\/thrift.apache.org/' lib/java/build.xml
+  - cat -n lib/java/build.properties | grep http
+  - cat -n lib/json/test/build.properties | grep http
+  - sudo ./configure
   - sudo make
   - sudo make install
   - cd ..
-  
-
   
   - cd /
   - sudo git clone https://github.com/json-c/json-c.git
@@ -46,7 +65,7 @@ before_install:
   - cd ..
   
   
-  - cd protobuf-2.5.0
+  - cd protobuf-2.5.0
   - ls -l
   - pwd
   - cat autogen.sh
@@ -55,18 +74,19 @@ before_install:
   - cd src/google/protobuf/stubs/
   - ls
   - sudo rm atomicops.h platform_macros.h
-  - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/atomicops.h 
-  - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/atomicops_internals_power.h  
-  - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/platform_macros.h 
-  - cd ../../../../
-  - sudo ./autogen.sh
-  - sudo ./configure
-  - sudo make 
+  - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/atomicops.h
+  - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/atomicops_internals_power.h
+  - sudo wget https://raw.githubusercontent.com/protocolbuffers/protobuf/2.7.0/src/google/protobuf/stubs/platform_macros.h
+  - cd ../../../../
+  - sudo ./autogen.sh
+  - sudo ./configure
+  - sudo make
+  - sudo make install 
   - export PATH=$PATH:/protobuf-2.5.0
   
-  - cd /
-  - sudo wget https://www-eu.apache.org/dist/hadoop/common/hadoop-2.9.2/hadoop-2.9.2-src.tar.gz 
-  - sudo tar -xvzf hadoop-2.9.2-src.tar.gz
+  - cd ~
+  - wget https://www-eu.apache.org/dist/hadoop/common/hadoop-2.9.2/hadoop-2.9.2-src.tar.gz 
+  - tar -xvzf hadoop-2.9.2-src.tar.gz
   - cd hadoop-2.9.2-src
   - mvn package -Pdist,native -DskipTests=true -Dtar
   
@@ -78,17 +98,7 @@ before_install:
   - sudo ./configure
   - sudo make
   - sudo make install
-  - mvn install:install-file -DgroupId=com.google.protobuf -DartifactId=protoc -Dversion=3.11.2 -Dclassifier=linux-ppcle_64 -Dpackaging=exe -Dfile=./src/protoc
-  - cd /
-
-  - sudo wget http://ftp.gnu.org/gnu/bison/bison-2.3.tar.gz
-  - sudo tar -xvzf bison-2.3.tar.gz
-  - cd bison-2.3
-  - sudo ./configure --build=ppc64le-pc-linux
-  - sudo make
-  - sudo make install
-
- 
+  - mvn install:install-file -DgroupId=com.google.protobuf -DartifactId=protoc -Dversion=3.11.2 -Dclassifier=linux-ppcle_64 -Dpackaging=exe -Dfile=./src/proto
   - cd /
   - sudo apt-get install -y gperftools-libs
   - sudo wget https://ftp.gnu.org/gnu/libiconv/libiconv-1.16.tar.gz
