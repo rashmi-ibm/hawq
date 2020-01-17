@@ -20,11 +20,10 @@ before_install:
   - sudo pip install pyyaml
   - export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-ppc64el
   
-  - sudo wget https://archive.apache.org/dist/maven/maven-3/3.6.2/binaries/apache-maven-3.6.2-bin.tar.gz
-  - sudo tar -xvzf apache-maven-3.6.2-bin.tar.gz
-  - sudo ln -s apache-maven-3.6.2 /maven
+  - sudo wget http://www-eu.apache.org/dist/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+  - sudo tar -xvzf apache-maven-3.6.3-bin.tar.gz
+  - sudo ln -s apache-maven-3.6.3 /maven
   - export M2_HOME=/maven
-  - export M3_HOME=/maven
   - export PATH=${M2_HOME}/bin:${PATH}
   
   - cd /
